@@ -1,32 +1,175 @@
-#include <DHT.h>
+//RFID Door Lock System
 
-#define DHTPIN 2     
-#define DHTTYPE DHT11   
+#include <Wire.h>
+#include <SPI.h>
+#include <MFRC522.h>
 
-DHT dht(DHTPIN, DHTTYPE);
+#define SS_PIN 10
+#define RST_PIN 9
+#define LED_G 4 //define green LED pin
+#define LED_R 5 //define red LED
+#define BUZZER 2 //buzzer pin
+#define lock 3
+MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
+int Btn = 6;
+ 
+void setup() 
+{
+  Serial.begin(9600);   // Initiate a serial communication
+  SPI.begin();      // Initiate  SPI bus
+  mfrc522.PCD_Init();   // Initiate MFRC522
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_R, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+  noTone(BUZZER);
+  pinMode(Btn,INPUT);
+  pinMode(lock,OUTPUT);
 
-void setup() {
-  Serial.begin(9600);
-  Serial.println("DHT11 test!");
+ }
+void loop() 
+{
 
-  dht.begin();
-}
-
-void loop() {
-  delay(2000);  
+if(digitalRead(Btn) == HIGH){
   
-  float humidity = dht.readHumidity();      
-  float temperature = dht.readTemperature(); 
-
-  if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return;
+    Serial.println("Access Granted");
+    Serial.println();
+    delay(500);
+    digitalWrite(LED_G, HIGH);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    delay(50);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    digitalWrite(lock,HIGH);
+    delay(3000);
+    digitalWrite(lock,LOW);
+    delay(100);
+    digitalWrite(LED_G, LOW);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+  delay(50);
   }
 
-  Serial.print("Humidity: ");
-  Serial.print(humidity);
-  Serial.print(" %\t");
-  Serial.print("Temperature: ");
-  Serial.print(temperature);
-  Serial.println(" °C");
-}
+
+  // Look for new cards
+  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  {
+    return;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) 
+  {
+    return;
+  }
+  //Show UID on serial monitor
+  Serial.print("UID tag :");
+  String content= "";
+  byte letter;
+  for (byte i = 0; i < mfrc522.uid.size; i++) 
+  {
+     Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+     Serial.print(mfrc522.uid.uidByte[i], HEX);
+     content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+     content.concat(String(mfrc522.uid.uidByte[i], HEX));
+  }
+  Serial.println();
+  Serial.print("Message : ");
+  content.toUpperCase();
+
+
+  
+ if (content.substring(1) == "13 C7 2A 0E") //change here the UID of card/cards or tag/tags that you want to give access
+  {
+    Serial.println("Access Granted");
+    Serial.println();
+    delay(500);
+    digitalWrite(LED_G, HIGH);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    delay(50);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    digitalWrite(lock,HIGH);
+
+    delay(3000);
+    digitalWrite(lock,LOW);
+    delay(100);
+    digitalWrite(LED_G, LOW);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    delay(50);
+  }
+
+else
+{
+    digitalWrite(LED_R, HIGH);
+    tone(BUZZER, 1500);
+    delay(500);
+    digitalWrite(LED_R, LOW);
+    noTone(BUZZER);
+    delay(100);
+    digitalWrite(LED_R, HIGH);
+    tone(BUZZER, 1500);
+    delay(500);
+    digitalWrite(LED_R, LOW);
+    noTone(BUZZER);
+    delay(100);
+    digitalWrite(LED_R, HIGH);
+    tone(BUZZER, 1500);
+    delay(500);
+    digitalWrite(LED_R, LOW);
+    noTone(BUZZER);
+ }
+ if (content.substring(1) == "33 71 C8 A6") //change here the UID of card/cards or tag/tags that you want to give access
+  {
+    Serial.println("Access Granted");
+    Serial.println();
+    delay(500);
+    digitalWrite(LED_G, HIGH);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    delay(50);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    digitalWrite(lock,HIGH);
+
+    delay(3000);
+    digitalWrite(lock,LOW);
+    delay(100);
+    digitalWrite(LED_G, LOW);
+    tone(BUZZER, 2000);
+    delay(100);
+    noTone(BUZZER);
+    delay(50);
+  }
+
+else
+{
+    digitalWrite(LED_R, HIGH);
+    tone(BUZZER, 1500);
+    delay(500);
+    digitalWrite(LED_R, LOW);
+    noTone(BUZZER);
+    delay(100);
+    digitalWrite(LED_R, HIGH);
+    tone(BUZZER, 1500);
+    delay(500);
+    digitalWrite(LED_R, LOW);
+    noTone(BUZZER);
+    delay(100);
+    digitalWrite(LED_R, HIGH);
+    tone(BUZZER, 1500);
+    delay(500);
+    digitalWrite(LED_R, LOW);
+    noTone(BUZZER);
+ }
+ }
+
